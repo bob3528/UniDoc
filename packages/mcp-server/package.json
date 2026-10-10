@@ -5,6 +5,16 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./services": {
+      "import": "./dist/services.js",
+      "types": "./dist/services.d.ts"
+    }
+  },
   "bin": {
     "unidoc-mcp": "./dist/index.js"
   },

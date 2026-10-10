@@ -7,13 +7,20 @@
   "workspaces": [
     "packages/shared",
     "packages/mcp-server",
+    "packages/backend",
     "packages/frontend"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspace @unidoc/shared && npm run build --workspace @unidoc/mcp-server && npm run build --workspace @unidoc/backend",
     "build:shared": "npm run build --workspace @unidoc/shared",
     "build:mcp": "npm run build --workspace @unidoc/mcp-server",
+    "build:backend": "npm run build --workspace @unidoc/backend",
+    "build:frontend": "npm run build --workspace @unidoc/frontend",
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev:backend": "npm run dev --workspace @unidoc/backend",
+    "dev:frontend": "npm run dev --workspace @unidoc/frontend",
     "dev:mcp": "npm run dev --workspace @unidoc/mcp-server",
+    "start:backend": "npm run start --workspace @unidoc/backend",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint packages/*/src/**/*.ts"

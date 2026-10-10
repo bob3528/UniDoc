@@ -42,5 +42,93 @@
     ],
     "createdAt": "2026-10-10T09:09:32.292Z",
     "updatedAt": "2026-10-10T09:09:32.292Z"
+  },
+  {
+    "id": "3914bba0-8311-48f4-8890-ae6cae7e49e0",
+    "name": "Test Template",
+    "description": "A test custom template",
+    "formatting": {
+      "fontFamily": "Calibri",
+      "bodyFontSize": 11,
+      "headingFontSize": 14,
+      "subHeadingFontSize": 12,
+      "lineSpacing": 1.15,
+      "paragraphSpacingBefore": 0,
+      "paragraphSpacingAfter": 8,
+      "margins": {
+        "top": 25.4,
+        "right": 25.4,
+        "bottom": 25.4,
+        "left": 25.4
+      },
+      "pageSize": "A4",
+      "orientation": "portrait"
+    },
+    "sections": [
+      {
+        "id": "intro",
+        "name": "Introduction",
+        "mandatory": true,
+        "order": 0
+      },
+      {
+        "id": "body",
+        "name": "Body",
+        "mandatory": true,
+        "order": 1
+      },
+      {
+        "id": "conclusion",
+        "name": "Conclusion",
+        "mandatory": true,
+        "order": 2
+      }
+    ],
+    "createdAt": "2026-10-10T09:40:04.916Z",
+    "updatedAt": "2026-10-10T09:40:04.916Z"
+  },
+  {
+    "id": "e67f8d66-e726-4ee3-ad7b-d4e27c958fc9",
+    "name": "Test Template",
+    "description": "A test custom template",
+    "formatting": {
+      "fontFamily": "Calibri",
+      "bodyFontSize": 11,
+      "headingFontSize": 14,
+      "subHeadingFontSize": 12,
+      "lineSpacing": 1.15,
+      "paragraphSpacingBefore": 0,
+      "paragraphSpacingAfter": 8,
+      "margins": {
+        "top": 25.4,
+        "right": 25.4,
+        "bottom": 25.4,
+        "left": 25.4
+      },
+      "pageSize": "A4",
+      "orientation": "portrait"
+    },
+    "sections": [
+      {
+        "id": "intro",
+        "name": "Introduction",
+        "mandatory": true,
+        "order": 0
+      },
+      {
+        "id": "body",
+        "name": "Body",
+        "mandatory": true,
+        "order": 1
+      },
+      {
+        "id": "conclusion",
+        "name": "Conclusion",
+        "mandatory": true,
+        "order": 2
+      }
+    ],
+    "createdAt": "2026-10-10T10:12:29.597Z",
+    "updatedAt": "2026-10-10T10:12:29.597Z"
   }
 ]
