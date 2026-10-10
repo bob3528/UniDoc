@@ -6,8 +6,45 @@
 import type { Application, Request, Response } from "express";
 import { runAgent } from "./gemini/agent.js";
 import { isGeminiAvailable } from "./gemini/client.js";
+import { getGeminiModel, outputDirectory } from "./config.js";
+import { exportDocument } from "./export.js";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
+import { generateProposalInputSchema, validateProposalInputSchema, repairProposalInputSchema,
+  calculateBudgetInputSchema, validateBudgetInputSchema, createCustomTemplateInputSchema, eventDetailsSchema } from "@unidoc/shared";
+
+const eventSchema = eventDetailsSchema;
+const exportSchema = z.object({ eventDetails: eventSchema, universityId: z.string().min(1),
+  format: z.enum(["docx", "markdown"]) }).strict();
+const requestSchemas: Record<string, z.ZodTypeAny> = {
+  "/api/proposal/generate": generateProposalInputSchema.extend({ eventDetails: eventSchema }).omit({customTemplateId: true}),
+  "/api/proposal/validate": validateProposalInputSchema.extend({ eventDetails: eventSchema }),
+  "/api/proposal/repair": repairProposalInputSchema.extend({ eventDetails: eventSchema }),
+  "/api/budget/calculate": calculateBudgetInputSchema,
+  "/api/budget/validate": validateBudgetInputSchema,
+  "/api/export": exportSchema,
+  "/api/templates": createCustomTemplateInputSchema,
+  "/api/agent": z.object({ prompt: z.string().trim().min(1).max(5000) }).strict(),
+};
 
 export function registerRoutes(app: Application): void {
+  app.use((req: Request, res: Response, next: () => void) => {
+    const schema = req.method === "POST" ? requestSchemas[req.path.toLowerCase().replace(/\/+$/, "")] : undefined;
+    if (!schema) return next();
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ success: false, error: "Invalid request", issues: parsed.error.issues });
+      return;
+    }
+    req.body = parsed.data;
+    if (req.body.eventDetails && req.body.eventDetails.university !== req.body.universityId) {
+      res.status(400).json({ success: false, error: "eventDetails.university must match universityId" });
+      return;
+    }
+    next();
+  });
   // ─── Health & Status ────────────────────────────────────
 
   app.get("/api/health", (_req, res) => {
@@ -15,7 +52,7 @@ export function registerRoutes(app: Application): void {
   });
 
   app.get("/api/gemini/status", (_req, res) => {
-    res.json({ available: isGeminiAvailable(), model: process.env.GEMINI_MODEL || "gemini-1.5-flash" });
+    res.json({ available: isGeminiAvailable(), model: getGeminiModel() });
   });
 
   // ─── Universities ───────────────────────────────────────
@@ -60,7 +97,7 @@ export function registerRoutes(app: Application): void {
       res.json({
         success: true,
         proposal: {
-          id: `proposal-${Date.now()}`,
+          id: `proposal-${randomUUID()}`,
           eventDetails,
           universityProfileId: universityId,
           sections,
@@ -87,7 +124,7 @@ export function registerRoutes(app: Application): void {
       }
       const sections = buildProposalSections(eventDetails, profile);
       const report = validateProposal(eventDetails, profile, sections);
-      report.proposalId = `proposal-${Date.now()}`;
+      report.proposalId = `proposal-${randomUUID()}`;
       res.json({ success: true, report });
     } catch (err) {
       res.status(500).json({ success: false, error: String(err) });
@@ -106,9 +143,9 @@ export function registerRoutes(app: Application): void {
         return;
       }
       const result = repairProposal(eventDetails, profile, validationIssues || []);
-      result.proposalId = `proposal-${Date.now()}`;
+      result.proposalId = `proposal-${randomUUID()}`;
       const sections = buildProposalSections(eventDetails, profile);
-      res.json({ success: true, result, repairedSections: sections });
+      res.json({ success: true, result, eventDetails, repairedSections: sections });
     } catch (err) {
       res.status(500).json({ success: false, error: String(err) });
     }
@@ -142,30 +179,14 @@ export function registerRoutes(app: Application): void {
 
   app.post("/api/export", async (req, res) => {
     try {
-      const { eventDetails, universityId, format, outputPath } = req.body;
-      const { getUniversity, buildProposalSections, generateMarkdown, generateDocx } = await import("@unidoc/mcp-server/services");
+      const { eventDetails, universityId, format } = req.body;
+      const { getUniversity } = await import("@unidoc/mcp-server/services");
       const profile = getUniversity(universityId);
       if (!profile) {
-        res.status(404).json({ success: false, error: `University "${universityId}" not found` });
+        res.status(404).json({ success: false, error: "University not found" });
         return;
       }
-      const sections = buildProposalSections(eventDetails, profile);
-      const { mkdirSync } = await import("node:fs");
-      const { dirname } = await import("node:path");
-
-      if (format === "markdown") {
-        const content = generateMarkdown(sections, profile, eventDetails);
-        const path = outputPath || `output/${universityId}-${Date.now()}.md`;
-        mkdirSync(dirname(path), { recursive: true });
-        const { writeFileSync } = await import("node:fs");
-        writeFileSync(path, content, "utf-8");
-        res.json({ success: true, format: "markdown", filePath: path, content });
-      } else {
-        const path = outputPath || `output/${universityId}-${Date.now()}.docx`;
-        mkdirSync(dirname(path), { recursive: true });
-        await generateDocx(sections, profile, eventDetails, path);
-        res.json({ success: true, format: "docx", filePath: path });
-      }
+      res.json(await exportDocument(eventDetails, profile, format));
     } catch (err) {
       res.status(500).json({ success: false, error: String(err) });
     }
@@ -174,8 +195,12 @@ export function registerRoutes(app: Application): void {
   // ─── File Download ───────────────────────────────────────
 
   app.get("/api/download/:filename", (req, res) => {
-    const path = `output/${req.params.filename}`;
-    const { existsSync } = require("node:fs");
+    const filename = req.params.filename;
+    if (!/^[a-zA-Z0-9_-]+\.(docx|md)$/.test(filename)) {
+      res.status(400).json({ success: false, error: "Invalid filename" });
+      return;
+    }
+    const path = join(outputDirectory, filename);
     if (!existsSync(path)) {
       res.status(404).json({ success: false, error: "File not found" });
       return;

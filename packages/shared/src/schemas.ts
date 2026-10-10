@@ -65,13 +65,17 @@ export const committeeMemberSchema = z.object({
   faculty: z.string().optional(),
 });
 
+const calendarDateSchema = z.string().refine(value => /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+  !Number.isNaN(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value,
+  "Use a valid YYYY-MM-DD date");
+
 export const eventDetailsSchema = z.object({
   title: z.string().min(1),
   university: z.string().min(1),
   organiser: z.string().min(1),
   objectives: z.array(z.string().min(1)).min(1),
-  startDate: z.string().min(1),
-  endDate: z.string().min(1),
+  startDate: calendarDateSchema,
+  endDate: calendarDateSchema,
   venue: z.string().min(1),
   targetParticipants: z.number().int().positive(),
   activities: z.array(activitySchema),
@@ -108,7 +112,9 @@ export const calculateBudgetInputSchema = z.object({
   budgetLimit: z.number().positive().optional(),
 }).strict();
 
-export const validateBudgetInputSchema = calculateBudgetInputSchema;
+export const validateBudgetInputSchema = calculateBudgetInputSchema.extend({
+  budgetItems: z.array(budgetItemInputSchema.extend({ total: z.number().nonnegative().optional() })).min(1),
+});
 
 export const validateProposalInputSchema = z.object({
   eventDetails: eventDetailsSchema,

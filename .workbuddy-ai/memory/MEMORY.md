@@ -45,6 +45,10 @@
 - Gemini via REST API (not SDK) — avoids npm install issues in sandbox
 - Minimal Express type declarations — avoids @types/express dependency
 - Services barrel module approach — avoids moving engine files to new package
+- Gemini 503/429 resilience: 2 retries with exponential backoff (base 1s, 2s),
+  Retry-After header respected, fallback to gemini-2.0-flash after primary exhausted.
+  Fallback only triggered for 503/429 (overload), not for 400/401/403 (bad request).
+  Configurable via GEMINI_FALLBACK_MODEL and GEMINI_BASE_BACKOFF_MS env vars.
 
 ## npm install issues
 - Sandbox blocks npm install (SIGTERM on bulk delete of node_modules)

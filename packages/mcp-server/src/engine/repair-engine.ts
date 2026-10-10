@@ -23,7 +23,6 @@ export function repairProposal(
   validationIssues: ValidationIssue[],
 ): RepairResult {
   const actions: RepairAction[] = [];
-  const resolvedIssueTypes = new Set<string>();
 
   // Rebuild sections to ensure correct ordering and all mandatory sections exist
   const currentSections = buildProposalSections(eventDetails, profile);
@@ -43,7 +42,6 @@ export function repairProposal(
         description: `Added missing mandatory section "${issue.section}"`,
         applied: true,
       });
-      resolvedIssueTypes.add(`missing_section:${issue.section}`);
     }
   }
 
@@ -58,7 +56,6 @@ export function repairProposal(
       description: `Reordered section "${issue.section}" to correct position`,
       applied: true,
     });
-    resolvedIssueTypes.add(`section_order:${issue.section}`);
   }
 
   // 3. Fix budget calculation errors — recalculate totals
@@ -74,7 +71,6 @@ export function repairProposal(
       before: issue.message,
       after: "Budget totals recalculated automatically",
     });
-    resolvedIssueTypes.add(`budget_error:${issue.section}`);
   }
 
   // 4. Fix date errors (swap if end < start)
@@ -95,7 +91,6 @@ export function repairProposal(
         before: `Start: ${eventDetails.endDate}, End: ${eventDetails.startDate}`,
         after: `Start: ${eventDetails.startDate}, End: ${eventDetails.endDate}`,
       });
-      resolvedIssueTypes.add("date_error:Programme Details");
     }
   }
 
@@ -111,31 +106,15 @@ export function repairProposal(
       before: String(oldVal),
       after: "50",
     });
-    resolvedIssueTypes.add("invalid_participants:Target Participants");
   }
 
-  // Determine remaining issues
-  const remainingIssues = validationIssues.filter((issue) => {
-    const key = `${issue.type}:${issue.section}`;
-    return !resolvedIssueTypes.has(key);
-  });
-
-  // Re-validate to get updated status
-  const revalidation = validateProposal(eventDetails, profile, currentSections);
-
-  const status: RepairResult["status"] =
-    revalidation.errorCount === 0
-      ? revalidation.warningCount === 0
-        ? "pass"
-        : "partial"
-      : remainingIssues.some((i) => i.severity === "error")
-        ? "fail"
-        : "partial";
+  // Validate freshly rebuilt sections after the event details have changed.
+  const revalidation = validateProposal(eventDetails, profile, buildProposalSections(eventDetails, profile));
 
   return {
     proposalId: "unknown",
     actions,
-    remainingIssues,
-    status,
+    remainingIssues: revalidation.issues,
+    status: revalidation.errorCount > 0 ? "fail" : revalidation.warningCount > 0 ? "partial" : "pass",
   };
 }

@@ -4,12 +4,48 @@
 // ============================================================
 
 import type { GeminiFunctionDeclaration } from "./client.js";
+import { eventDetailsSchema, generateProposalInputSchema,
+  validateProposalInputSchema, repairProposalInputSchema, calculateBudgetInputSchema, validateBudgetInputSchema,
+  getUniversityRulesInputSchema } from "@unidoc/shared";
+import { z } from "zod";
+import { exportDocument } from "../export.js";
+
+const string = { type: "string" };
+const budgetItem = { type: "object", properties: {
+  category: string, description: string, quantity: { type: "number" }, unitPrice: { type: "number" },
+}, required: ["category", "description", "quantity", "unitPrice"] };
+const eventParameters = { type: "object", properties: {
+  title: string, university: string, organiser: string,
+  objectives: { type: "array", items: string }, startDate: string, endDate: string, venue: string,
+  targetParticipants: { type: "integer" },
+  activities: { type: "array", items: { type: "object", properties: {
+    time: string, description: string, facilitator: string,
+  }, required: ["time", "description"] } },
+  budget: { type: "array", items: budgetItem }, budgetLimit: { type: "number" },
+  committee: { type: "array", items: { type: "object", properties: {
+    position: string, name: string, studentId: string, faculty: string,
+  }, required: ["position", "name"] } },
+  expectedOutcomes: { type: "array", items: string }, background: string, introduction: string, conclusion: string,
+}, required: Object.keys(eventDetailsSchema.shape).filter(key => !["budgetLimit", "background", "introduction", "conclusion"].includes(key)) };
+const issueParameters = { type: "object", properties: {
+  section: string, severity: { type: "string", enum: ["error", "warning", "info"] },
+  type: string, message: string, suggestion: string,
+}, required: ["section", "severity", "type", "message", "suggestion"] };
+const toolSchemas: Record<string, z.ZodTypeAny> = {
+  list_universities: z.object({}).strict(), get_university_rules: getUniversityRulesInputSchema,
+  generate_proposal: generateProposalInputSchema.omit({ customTemplateId: true }),
+  validate_proposal: validateProposalInputSchema, repair_proposal: repairProposalInputSchema,
+  calculate_budget: calculateBudgetInputSchema, validate_budget: validateBudgetInputSchema,
+  export_document: z.object({ eventDetails: eventDetailsSchema, universityId: z.string().min(1),
+    format: z.enum(["docx", "markdown"]) }).strict(),
+  get_approval_checklist: getUniversityRulesInputSchema,
+  list_custom_templates: z.object({}).strict(),
+};
 
 export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
   {
     name: "list_universities",
     description: "List all available university template profiles with their IDs, names, and section counts.",
-    parameters: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "get_university_rules",
@@ -20,7 +56,6 @@ export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
         universityId: { type: "string", description: "University profile ID (e.g., 'upm', 'um')" },
       },
       required: ["universityId"],
-      additionalProperties: false,
     },
   },
   {
@@ -29,14 +64,10 @@ export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
     parameters: {
       type: "object",
       properties: {
-        eventDetails: {
-          type: "object",
-          description: "Structured event information including title, organiser, objectives, dates, venue, participants, activities, budget, committee, and expected outcomes.",
-        },
+        eventDetails: eventParameters,
         universityId: { type: "string", description: "Target university profile ID" },
       },
       required: ["eventDetails", "universityId"],
-      additionalProperties: false,
     },
   },
   {
@@ -45,11 +76,10 @@ export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
     parameters: {
       type: "object",
       properties: {
-        eventDetails: { type: "object", description: "Structured event information" },
+        eventDetails: eventParameters,
         universityId: { type: "string" },
       },
       required: ["eventDetails", "universityId"],
-      additionalProperties: false,
     },
   },
   {
@@ -58,12 +88,11 @@ export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
     parameters: {
       type: "object",
       properties: {
-        eventDetails: { type: "object", description: "Structured event information" },
+        eventDetails: eventParameters,
         universityId: { type: "string" },
-        validationIssues: { type: "array", description: "Validation issues from validate_proposal to repair" },
+        validationIssues: { type: "array", items: issueParameters },
       },
       required: ["eventDetails", "universityId"],
-      additionalProperties: false,
     },
   },
   {
@@ -72,11 +101,10 @@ export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
     parameters: {
       type: "object",
       properties: {
-        budgetItems: { type: "array", items: { type: "object" } },
+        budgetItems: { type: "array", items: budgetItem },
         budgetLimit: { type: "number", description: "Maximum budget in RM (optional)" },
       },
       required: ["budgetItems"],
-      additionalProperties: false,
     },
   },
   {
@@ -85,11 +113,10 @@ export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
     parameters: {
       type: "object",
       properties: {
-        budgetItems: { type: "array", items: { type: "object" } },
+        budgetItems: { type: "array", items: budgetItem },
         budgetLimit: { type: "number" },
       },
       required: ["budgetItems"],
-      additionalProperties: false,
     },
   },
   {
@@ -98,13 +125,11 @@ export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
     parameters: {
       type: "object",
       properties: {
-        eventDetails: { type: "object", description: "Structured event information" },
+        eventDetails: eventParameters,
         universityId: { type: "string" },
         format: { type: "string", enum: ["docx", "markdown"] },
-        outputPath: { type: "string", description: "File path for output (optional)" },
       },
       required: ["eventDetails", "universityId", "format"],
-      additionalProperties: false,
     },
   },
   {
@@ -116,13 +141,11 @@ export const geminiToolDeclarations: GeminiFunctionDeclaration[] = [
         universityId: { type: "string" },
       },
       required: ["universityId"],
-      additionalProperties: false,
     },
   },
   {
     name: "list_custom_templates",
     description: "List all saved custom document formatting templates.",
-    parameters: { type: "object", properties: {}, additionalProperties: false },
   },
 ];
 
@@ -134,6 +157,12 @@ export async function executeToolCall(
   args: Record<string, unknown>,
 ): Promise<{ result: unknown; error?: string }> {
   try {
+    const schema = toolSchemas[name];
+    if (!schema) return { result: { success: false, error: `Unknown tool: ${name}` } };
+    args = schema.parse(args);
+    if (args.eventDetails && (args.eventDetails as { university: string }).university !== args.universityId) {
+      throw new Error("eventDetails.university must match universityId");
+    }
     // Dynamic import to avoid loading MCP server entry
     const services = await import("@unidoc/mcp-server/services");
 
@@ -192,7 +221,7 @@ export async function executeToolCall(
         const result = services.repairProposal(eventDetails, profile, validationIssues || []);
         result.proposalId = `proposal-${Date.now()}`;
         const sections = services.buildProposalSections(eventDetails, profile);
-        return { result: { success: true, result, repairedSections: sections } };
+        return { result: { success: true, result, eventDetails, repairedSections: sections } };
       }
 
       case "calculate_budget": {
@@ -208,30 +237,12 @@ export async function executeToolCall(
       }
 
       case "export_document": {
-        const { eventDetails, universityId, format, outputPath } = args as {
-          eventDetails: any; universityId: string; format: "docx" | "markdown"; outputPath?: string;
+        const { eventDetails, universityId, format } = args as {
+          eventDetails: any; universityId: string; format: "docx" | "markdown";
         };
         const profile = services.getUniversity(universityId);
         if (!profile) return { result: { success: false, error: `University "${universityId}" not found` } };
-        const sections = services.buildProposalSections(eventDetails, profile);
-
-        if (format === "markdown") {
-          const content = services.generateMarkdown(sections, profile, eventDetails);
-          const path = outputPath || `output/${universityId}-${Date.now()}.md`;
-          const { writeFileSync, mkdirSync } = await import("node:fs");
-          const { dirname } = await import("node:path");
-          mkdirSync(dirname(path), { recursive: true });
-          writeFileSync(path, content, "utf-8");
-          return { result: { success: true, format: "markdown", filePath: path, content } };
-        }
-
-        // DOCX
-        const path = outputPath || `output/${universityId}-${Date.now()}.docx`;
-        const { mkdirSync } = await import("node:fs");
-        const { dirname } = await import("node:path");
-        mkdirSync(dirname(path), { recursive: true });
-        await services.generateDocx(sections, profile, eventDetails, path);
-        return { result: { success: true, format: "docx", filePath: path } };
+        return { result: await exportDocument(eventDetails, profile, format) };
       }
 
       case "get_approval_checklist": {

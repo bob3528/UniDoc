@@ -3,7 +3,7 @@
 // Max 10 iterations, max 15 tool calls, 30s timeout per call
 // ============================================================
 
-import { callGemini, isGeminiAvailable, type GeminiFunctionCall } from "./client.js";
+import { callGemini, isGeminiAvailable } from "./client.js";
 import { geminiToolDeclarations, executeToolCall } from "./tools.js";
 
 const MAX_ITERATIONS = 10;
@@ -75,7 +75,7 @@ export interface AgentResult {
  */
 export async function runAgent(prompt: string): Promise<AgentResult> {
   const steps: AgentStep[] = [];
-  const startTime = Date.now();
+
 
   if (!isGeminiAvailable()) {
     steps.push({
@@ -137,16 +137,8 @@ export async function runAgent(prompt: string): Promise<AgentResult> {
     }
 
     // Add Gemini's response to conversation
-    const responseParts: Array<Record<string, unknown>> = [];
-    if (geminiResponse.text) {
-      responseParts.push({ text: geminiResponse.text });
-    }
-    if (geminiResponse.functionCalls) {
-      for (const fc of geminiResponse.functionCalls) {
-        responseParts.push({ functionCall: { name: fc.name, args: fc.args } });
-      }
-    }
-    conversationHistory.push({ role: "model", parts: responseParts });
+    // Preserve the original model parts, including thought signatures.
+    conversationHistory.push({ role: "model", parts: geminiResponse.parts || [] });
 
     // If no function calls, we're done — Gemini returned a text response
     if (!geminiResponse.functionCalls || geminiResponse.functionCalls.length === 0) {
@@ -158,7 +150,8 @@ export async function runAgent(prompt: string): Promise<AgentResult> {
         timestamp: new Date().toISOString(),
       });
       return {
-        success: true,
+        success: Boolean(exportPath),
+        ...(!exportPath ? { error: "No document was exported. Supply the missing event details and try again." } : {}),
         steps,
         finalText: geminiResponse.text,
         exportPath,
@@ -170,6 +163,8 @@ export async function runAgent(prompt: string): Promise<AgentResult> {
       };
     }
 
+    // Batch all function responses for this model turn.
+    const toolResponseParts: Array<Record<string, unknown>> = [];
     // Execute each function call
     for (const fc of geminiResponse.functionCalls) {
       totalToolCalls++;
@@ -216,15 +211,15 @@ export async function runAgent(prompt: string): Promise<AgentResult> {
         if (r.report) validationReport = r.report;
       }
       if (fc.name === "repair_proposal" && result && typeof result === "object") {
-        const r = result as { result?: unknown };
+        const r = result as { result?: unknown; eventDetails?: unknown; repairedSections?: unknown };
         if (r.result) repairResult = r.result;
+        if (proposal && typeof proposal === "object" && r.eventDetails && r.repairedSections) {
+          proposal = { ...proposal, eventDetails: r.eventDetails, sections: r.repairedSections };
+        }
       }
 
       // Add tool result to conversation history
-      conversationHistory.push({
-        role: "user",
-        parts: [{ functionResponse: { name: fc.name, response: result } }],
-      });
+      toolResponseParts.push({ functionResponse: { name: fc.name, response: error ? { error } : result } });
 
       steps.push({
         step: steps.length,
@@ -234,6 +229,7 @@ export async function runAgent(prompt: string): Promise<AgentResult> {
         timestamp: new Date().toISOString(),
       });
     }
+    conversationHistory.push({ role: "user", parts: toolResponseParts });
   }
 
   // Exhausted max iterations

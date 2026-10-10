@@ -17,6 +17,7 @@ const DATA_DIR = join(__dirname, "..", "..", "..", "..", "data", "universities")
 const profileCache = new Map<string, UniversityProfile>();
 
 function loadProfile(id: string): UniversityProfile | null {
+  if (typeof id !== "string" || !/^[a-zA-Z0-9_-]+$/.test(id)) return null;
   if (profileCache.has(id)) {
     return profileCache.get(id)!;
   }

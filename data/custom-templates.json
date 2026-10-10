@@ -130,5 +130,49 @@
     ],
     "createdAt": "2026-10-10T10:12:29.597Z",
     "updatedAt": "2026-10-10T10:12:29.597Z"
+  },
+  {
+    "id": "49a2ae0e-27e2-48fd-b9c2-9524f4638fd6",
+    "name": "Test Template",
+    "description": "A test custom template",
+    "formatting": {
+      "fontFamily": "Calibri",
+      "bodyFontSize": 11,
+      "headingFontSize": 14,
+      "subHeadingFontSize": 12,
+      "lineSpacing": 1.15,
+      "paragraphSpacingBefore": 0,
+      "paragraphSpacingAfter": 8,
+      "margins": {
+        "top": 25.4,
+        "right": 25.4,
+        "bottom": 25.4,
+        "left": 25.4
+      },
+      "pageSize": "A4",
+      "orientation": "portrait"
+    },
+    "sections": [
+      {
+        "id": "intro",
+        "name": "Introduction",
+        "mandatory": true,
+        "order": 0
+      },
+      {
+        "id": "body",
+        "name": "Body",
+        "mandatory": true,
+        "order": 1
+      },
+      {
+        "id": "conclusion",
+        "name": "Conclusion",
+        "mandatory": true,
+        "order": 2
+      }
+    ],
+    "createdAt": "2026-10-10T21:15:49.268Z",
+    "updatedAt": "2026-10-10T21:15:49.268Z"
   }
 ]

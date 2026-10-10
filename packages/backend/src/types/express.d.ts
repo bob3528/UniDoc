@@ -4,6 +4,8 @@ declare module "express" {
   type RequestHandler = (req: any, res: any, next: any) => void | Promise<void>;
   interface Request {
     body: any;
+    method: string;
+    path: string;
     query: Record<string, string>;
     params: Record<string, string>;
     headers: Record<string, string | undefined>;
@@ -17,7 +19,7 @@ declare module "express" {
     header(field: string, value: string): Response;
   }
   interface Application {
-    use(...handlers: RequestHandler[]): Application;
+    use(...handlers: any[]): Application;
     use(path: string, ...handlers: RequestHandler[]): Application;
     get(path: string, ...handlers: RequestHandler[]): Application;
     post(path: string, ...handlers: RequestHandler[]): Application;
