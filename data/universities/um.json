@@ -1,0 +1,120 @@
+{
+  "id": "um",
+  "name": "UM",
+  "fullName": "Universiti Malaya",
+  "isVerified": false,
+  "notes": "Demonstration template. Verify formatting against current UM guidelines.",
+  "formatting": {
+    "fontFamily": "Times New Roman",
+    "bodyFontSize": 12,
+    "headingFontSize": 14,
+    "subHeadingFontSize": 12,
+    "lineSpacing": 1.5,
+    "paragraphSpacingBefore": 0,
+    "paragraphSpacingAfter": 6,
+    "margins": {
+      "top": 25.4,
+      "right": 25.4,
+      "bottom": 25.4,
+      "left": 25.4
+    },
+    "pageSize": "A4",
+    "orientation": "portrait"
+  },
+  "sections": [
+    {
+      "id": "cover_page",
+      "name": "Cover Page",
+      "mandatory": true,
+      "order": 0
+    },
+    {
+      "id": "introduction",
+      "name": "Introduction",
+      "mandatory": true,
+      "order": 1
+    },
+    {
+      "id": "background",
+      "name": "Background",
+      "mandatory": true,
+      "order": 2
+    },
+    {
+      "id": "objectives",
+      "name": "Objectives",
+      "mandatory": true,
+      "order": 3
+    },
+    {
+      "id": "programme_details",
+      "name": "Programme Details",
+      "mandatory": true,
+      "order": 4
+    },
+    {
+      "id": "target_participants",
+      "name": "Target Participants",
+      "mandatory": true,
+      "order": 5
+    },
+    {
+      "id": "organising_committee",
+      "name": "Organising Committee",
+      "mandatory": true,
+      "order": 6
+    },
+    {
+      "id": "tentative_programme",
+      "name": "Tentative Programme",
+      "mandatory": true,
+      "order": 7,
+      "hasTable": true
+    },
+    {
+      "id": "financial_budget",
+      "name": "Financial Budget",
+      "mandatory": true,
+      "order": 8,
+      "hasTable": true
+    },
+    {
+      "id": "expected_outcomes",
+      "name": "Expected Outcomes",
+      "mandatory": true,
+      "order": 9
+    },
+    {
+      "id": "conclusion",
+      "name": "Conclusion",
+      "mandatory": true,
+      "order": 10
+    },
+    {
+      "id": "appendices",
+      "name": "Appendices",
+      "mandatory": false,
+      "order": 11
+    }
+  ],
+  "supportingDocuments": [
+    "Committee member list",
+    "Detailed programme tentative",
+    "Itemised budget breakdown",
+    "Faculty support letter"
+  ],
+  "approvalFlow": [
+    {
+      "stage": "Club Advisor",
+      "approver": "Advisor",
+      "role": "Club Advisor",
+      "verified": false
+    },
+    {
+      "stage": "Faculty Student Affairs",
+      "approver": "Deputy Dean",
+      "role": "Deputy Dean of Student Affairs",
+      "verified": false
+    }
+  ]
+}

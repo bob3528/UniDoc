@@ -1,0 +1,143 @@
+{
+  "id": "upm",
+  "name": "UPM",
+  "fullName": "Universiti Putra Malaysia",
+  "isVerified": false,
+  "notes": "Demonstration template based on common UPM kertas kerja conventions. Not an official university document. Verify formatting against current university guidelines before submission.",
+  "formatting": {
+    "fontFamily": "Times New Roman",
+    "bodyFontSize": 12,
+    "headingFontSize": 14,
+    "subHeadingFontSize": 12,
+    "lineSpacing": 1.5,
+    "paragraphSpacingBefore": 0,
+    "paragraphSpacingAfter": 6,
+    "margins": {
+      "top": 25.4,
+      "right": 25.4,
+      "bottom": 25.4,
+      "left": 25.4
+    },
+    "pageSize": "A4",
+    "orientation": "portrait"
+  },
+  "sections": [
+    {
+      "id": "cover_page",
+      "name": "Cover Page",
+      "mandatory": true,
+      "order": 0,
+      "description": "Title page with university logo, programme title, organiser, and date"
+    },
+    {
+      "id": "introduction",
+      "name": "Pengenalan",
+      "mandatory": true,
+      "order": 1,
+      "description": "Introduction and rationale for the programme"
+    },
+    {
+      "id": "background",
+      "name": "Latar Belakang",
+      "mandatory": true,
+      "order": 2,
+      "description": "Background of the programme and organising body"
+    },
+    {
+      "id": "objectives",
+      "name": "Objektif Program",
+      "mandatory": true,
+      "order": 3,
+      "description": "Programme objectives listed as bullet points"
+    },
+    {
+      "id": "programme_details",
+      "name": "Butiran Program",
+      "mandatory": true,
+      "order": 4,
+      "description": "Date, time, venue, target participants, and programme scope"
+    },
+    {
+      "id": "target_participants",
+      "name": "Kumpulan Sasaran",
+      "mandatory": true,
+      "order": 5,
+      "description": "Target participant details and estimated attendance"
+    },
+    {
+      "id": "organising_committee",
+      "name": "Jawatankuasa Penganjur",
+      "mandatory": true,
+      "order": 6,
+      "description": "List of organising committee members with positions"
+    },
+    {
+      "id": "tentative_programme",
+      "name": "Tentatif Program",
+      "mandatory": true,
+      "order": 7,
+      "hasTable": true,
+      "description": "Programme itinerary with time slots and activities in table format"
+    },
+    {
+      "id": "financial_budget",
+      "name": "Belanjawan Kewangan",
+      "mandatory": true,
+      "order": 8,
+      "hasTable": true,
+      "description": "Itemised budget table with quantities, unit prices, and totals"
+    },
+    {
+      "id": "expected_outcomes",
+      "name": "Hasil Yang Dijangka",
+      "mandatory": true,
+      "order": 9,
+      "description": "Expected outcomes and benefits of the programme"
+    },
+    {
+      "id": "conclusion",
+      "name": "Kesimpulan",
+      "mandatory": true,
+      "order": 10,
+      "description": "Concluding remarks and hope for approval"
+    },
+    {
+      "id": "appendices",
+      "name": "Lampiran",
+      "mandatory": false,
+      "order": 11,
+      "description": "Supporting documents, forms, and additional references"
+    }
+  ],
+  "supportingDocuments": [
+    "Borang Permohonan Kelab/Persatuan",
+    "Senarai Ahli Jawatankuasa Penganjur",
+    "Tentatif Program lengkap",
+    "Senarai Belanjawan terperinci",
+    "Surat sokongan dari fakulti/jabatan",
+    "Borang pengesahan penasihat"
+  ],
+  "approvalFlow": [
+    {
+      "stage": "Penasihat Kelab/Persatuan",
+      "approver": "Penasihat",
+      "role": "Club Advisor",
+      "verified": false,
+      "notes": "Advisor reviews and signs the proposal"
+    },
+    {
+      "stage": "Timbalan Dekan (Hal Ehwal Pelajar)",
+      "approver": "Timbalan Dekan HEP",
+      "role": "Deputy Dean of Student Affairs",
+      "verified": false,
+      "notes": "Faculty-level approval"
+    },
+    {
+      "stage": "Pejabat Hal Ehwal Pelajar (HEP)",
+      "approver": "Pegawai HEP",
+      "role": "Student Affairs Officer",
+      "verified": false,
+      "notes": "Central HEP office processing"
+    }
+  ]
+}

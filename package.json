@@ -1,0 +1,33 @@
+{
+  "name": "unidoc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-powered Malaysian university event proposal automation platform",
+  "type": "module",
+  "workspaces": [
+    "packages/shared",
+    "packages/mcp-server",
+    "packages/frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "build:shared": "npm run build --workspace @unidoc/shared",
+    "build:mcp": "npm run build --workspace @unidoc/mcp-server",
+    "dev:mcp": "npm run dev --workspace @unidoc/mcp-server",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint packages/*/src/**/*.ts"
+  },
+  "devDependencies": {
+    "@vitest/pretty-format": "^5.0.3",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "optionalDependencies": {
+    "@esbuild/win32-x64": "^0.28.2",
+    "@rollup/rollup-win32-x64-msvc": "^4.64.4"
+  }
+}
