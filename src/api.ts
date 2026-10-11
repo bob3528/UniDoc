@@ -1,0 +1,2 @@
+export async function api(path:string,options:RequestInit={}){let res:Response;try{res=await fetch('/api'+path,{...options,headers:{'Content-Type':'application/json',...options.headers}});}catch{throw new Error('Cannot reach paperIN backend. Start the app with npm run dev or npm start.');}const data=await res.json();if(!res.ok)throw new Error(data.error||'Request failed.');return data;}
+export const post=(path:string,body:unknown)=>api(path,{method:'POST',body:JSON.stringify(body)});

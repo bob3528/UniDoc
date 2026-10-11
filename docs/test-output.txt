@@ -1,0 +1,29 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> paperin@1.0.0 test
+> vitest run --reporter=dot
+
+
+ RUN  v2.1.9 <project>
+
+ ✓ tests/ai.test.ts (9 tests) 17ms
+ ✓ tests/assistant.test.ts (17 tests) 32ms
+ ✓ tests/domain.test.ts (55 tests) 109ms
+ ✓ tests/patch-receipts.test.ts (21 tests) 125ms
+ ✓ tests/http.test.ts (25 tests) 514ms
+ ✓ tests/ui.test.tsx (19 tests) 6196ms
+   ✓ React UI integrated with a real backend > landing, workspace selection, library, history and settings navigate 398ms
+   ✓ React UI integrated with a real backend > edits, previews, saves, reopens and downloads business / Invoice 584ms
+   ✓ React UI integrated with a real backend > edits, previews, saves, reopens and downloads business / Expense report 438ms
+   ✓ React UI integrated with a real backend > edits, previews, saves, reopens and downloads business / Internal audit report 446ms
+   ✓ React UI integrated with a real backend > edits, previews, saves, reopens and downloads business / Profit & loss statement 442ms
+   ✓ React UI integrated with a real backend > edits, previews, saves, reopens and downloads university / Kertas Kerja Program 561ms
+   ✓ React UI integrated with a real backend > inserts field writing automatically with undo and preserves other fields 322ms
+   ✓ Gemini prompt UI > automatically applies structured Gemini patches and supports revisions and undo 380ms
+   ✓ AI-first creation and receipt import — real local backend, controlled Gemini responses > reviews and corrects a scanned receipt, adds the expense and updates totals with duplicate prevention 577ms
+
+ Test Files  6 passed (6)
+      Tests  146 passed (146)
+   Start at  17:24:10
+   Duration  7.49s (transform 860ms, setup 0ms, collect 1.98s, tests 6.99s, environment 377ms, prepare 467ms)
+

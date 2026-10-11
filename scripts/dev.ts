@@ -1,0 +1,2 @@
+import 'dotenv/config';import { spawn } from 'node:child_process';
+const children=[spawn(process.execPath,['--watch','--import','tsx','server/index.ts'],{stdio:'inherit',env:process.env}),spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1'],{stdio:'inherit',env:process.env})];let stopped=false;function stop(code=0){if(stopped)return;stopped=true;children.forEach(c=>c.kill());process.exit(code);}children.forEach(c=>c.on('exit',code=>stop(code||0)));process.on('SIGINT',()=>stop());process.on('SIGTERM',()=>stop());
